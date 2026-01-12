@@ -43,3 +43,6 @@ jobs:
       newVersion: ${{ needs.version.outputs.new }}
       dryRun: ${{ github.event_name == 'workflow_dispatch' && fromJson(github.event.inputs.dryRun) || github.event_name != 'workflow_dispatch' && true }}
       repository: ${{ github.event.repository.name }}
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      PRIVATE_KEY_2022_02_07: ${{ secrets.PRIVATE_KEY_2022_02_07 }}

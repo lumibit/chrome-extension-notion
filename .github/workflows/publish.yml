@@ -12,6 +12,11 @@ on:
       repository:
         required: true
         type: string
+    secrets:
+      APP_ID:
+        required: true
+      PRIVATE_KEY_2022_02_07:
+        required: true
 
 jobs:
   extension:
