@@ -35,18 +35,7 @@ echo "Creating CRX package with private key..."
 # Convert escaped newlines to actual newlines and write key file
 echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > temp_private_key.pem
 
-# Chrome requires PKCS#8 format, convert if needed
-if grep -q "BEGIN RSA PRIVATE KEY" temp_private_key.pem 2>/dev/null; then
-    echo "Converting private key to PKCS#8 format..."
-    openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in temp_private_key.pem -out temp_private_key_pkcs8.pem 2>/dev/null
-    if [ -f temp_private_key_pkcs8.pem ] && [ -s temp_private_key_pkcs8.pem ]; then
-        mv temp_private_key_pkcs8.pem temp_private_key.pem
-    else
-        echo "Warning: Key conversion failed, using original key"
-    fi
-fi
-
-# Verify key file is valid
+# Verify key file is valid (PKCS#8 format expected)
 if ! grep -q "BEGIN.*PRIVATE KEY" temp_private_key.pem 2>/dev/null; then
     echo "Error: Invalid private key format"
     exit 1
