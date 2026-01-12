@@ -9,6 +9,9 @@ on:
       dryRun:
         required: true
         type: boolean
+      repository:
+        required: true
+        type: string
 
 jobs:
   extension:
@@ -24,7 +27,7 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY_2022_02_07 }}
           owner: ${{ github.repository_owner }}
-          repositories: ${{ github.event.repository.name }}
+          repositories: ${{ inputs.repository }}
 
       - id: checkout
         name: Checkout Repository

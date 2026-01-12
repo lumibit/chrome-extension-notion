@@ -42,3 +42,4 @@ jobs:
     with:
       newVersion: ${{ needs.version.outputs.new }}
       dryRun: ${{ github.event_name == 'workflow_dispatch' && fromJson(github.event.inputs.dryRun) || github.event_name != 'workflow_dispatch' && true }}
+      repository: ${{ github.event.repository.name }}
