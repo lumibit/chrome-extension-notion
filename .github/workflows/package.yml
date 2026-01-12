@@ -19,6 +19,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - id: setup-node
+        name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
       - id: checkout
         name: Checkout repository
         uses: actions/checkout@v6
@@ -43,8 +49,8 @@ jobs:
       - id: install-crx
         name: Install crx tool
         run: |
-          # install crx tool
-          npm install -g crx
+          # install latest crx tool (v5.0.0+ supports Node.js v20)
+          npm install -g crx@latest
 
       - id: package-extension
         name: Package Chrome extension

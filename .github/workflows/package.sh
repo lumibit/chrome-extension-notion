@@ -66,14 +66,20 @@ if command -v crx &> /dev/null; then
     # Write private key from environment variable to temporary file
     echo "$PRIVATE_KEY" > temp_private_key.pem
     
-    # Use crx tool with the temporary key file
+    # Use crx tool (latest version supports Node.js v20+)
     crx pack "$PACKAGE_DIR" -p "temp_private_key.pem" -o "$CRX_FILE"
     
     # Clean up temporary key file
     rm -f temp_private_key.pem
+    
+    # Verify CRX file was created
+    if [ ! -f "$CRX_FILE" ]; then
+        echo "Error: Failed to create CRX file"
+        exit 1
+    fi
 else
     echo "Error: 'crx' tool not found!"
-    echo "   Please install the 'crx' tool to create CRX files: npm install -g crx"
+    echo "   Please install the 'crx' tool to create CRX files: npm install -g crx@latest"
     exit 1
 fi
 

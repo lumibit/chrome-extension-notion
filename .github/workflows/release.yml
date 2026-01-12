@@ -32,8 +32,6 @@ jobs:
     uses: ./.github/workflows/package.yml
     with:
       newVersion: ${{ needs.version.outputs.new }}
-      # boolean must be evaluated from a string
-      # https://medium.com/@sohail.ra5/github-actions-passing-boolean-input-variables-to-reusable-workflow-call-42d39bf7342e
       dryRun: ${{ github.event_name == 'workflow_dispatch' && fromJson(github.event.inputs.dryRun) || github.event_name != 'workflow_dispatch' && true }}
     secrets:
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
