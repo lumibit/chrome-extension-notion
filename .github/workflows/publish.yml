@@ -13,6 +13,8 @@ on:
 jobs:
   extension:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - id: generate-token
@@ -21,42 +23,41 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY_2022_02_07 }}
-          owner: lumibit
-          repositories: chrome-extension-notion
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
 
       - id: checkout
         name: Checkout Repository
         uses: actions/checkout@v6
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          ref: main
+          ref: ${{ github.ref_name }}
 
       - id: download-artifacts
         name: Download extension artifacts
         uses: actions/download-artifact@v7
         with:
           name: extension-artifacts
-          path: docs/
+          path: .
 
       - id: place-updated-files
-        name: Copy manifest.json and updates.xml
+        name: Move files to correct locations
         run: |
-          cp docs/manifest.json .
-          cp docs/updates.xml .
+          # Move extension.crx to docs/ for GitHub Pages
+          mv extension.crx docs/extension.crx
 
       - id: commit-and-tag
         name: Commit changed files, add the release .crx to Github Pages
         if: ${{ inputs.dryRun == false }}
         uses: EndBug/add-and-commit@v9
         with:
-          message: "Version Update to ${{ inputs.newVersion }}"
+          message: "Version update from github actions"
           author_name: lumibit[bot]
           author_email: 98383366+lumibit[bot]@users.noreply.github.com
           committer_name: lumibit[bot]
           committer_email: 98383366+lumibit[bot]@users.noreply.github.com
           add: |
             manifest.json 
-            updates.xml
             docs/extension.crx
             docs/updates.xml
           push: true

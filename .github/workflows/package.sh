@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# Notion Extension - Package Script
+# Chrome Extension - Package Script
 # This script packages the Chrome extension for distribution as a CRX file
 
 set -e  # Exit on any error
 
 # Configuration
 VERSION=$(grep '"version"' manifest.json | cut -d'"' -f4)
+EXTENSION_NAME=$(grep '"name"' manifest.json | cut -d'"' -f4)
 PACKAGE_DIR="dist"
 CRX_FILE="extension.crx"
 
-echo "Packaging Notion Extension v${VERSION}"
+echo "Packaging ${EXTENSION_NAME} v${VERSION}"
 
 # Check if PRIVATE_KEY environment variable is set
 if [ -z "$PRIVATE_KEY" ]; then

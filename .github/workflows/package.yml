@@ -55,10 +55,6 @@ jobs:
 
           # zip the crx file for upload
           zip extension.crx.zip extension.crx
-          
-          # Copy docs/updates.xml to root for artifact upload
-          # (publish workflow downloads artifacts to docs/ directory)
-          cp docs/updates.xml updates.xml
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
@@ -69,6 +65,6 @@ jobs:
           name: extension-artifacts
           path: |
             extension.crx
-            updates.xml
+            docs/updates.xml
             extension.crx.zip
             manifest.json
