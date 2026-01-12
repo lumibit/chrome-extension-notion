@@ -82,36 +82,36 @@
         },
         ["requestHeaders", "extraHeaders"]
     );
-
-           // Handle keyboard shortcuts
-           chrome.commands.onCommand.addListener((command) => {
-               if (command === 'lock-page') {
-                   lockCurrentPage();
-               }
-           });
-
-    // Function to lock the current active page
-    async function lockCurrentPage() {
-        try {
-            // Get current active tab
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-            if (!tab?.url?.includes('notion')) {
-                return;
-            }
-
-            // Send block request to content script
-            const response = await chrome.tabs.sendMessage(tab.id, { action: 'blockPage' });
-
-            if (response.success) {
-                chrome.tabs.sendMessage(tab.id, { action: 'log', message: 'Page lock toggled successfully' });
-            } else {
-                chrome.tabs.sendMessage(tab.id, { action: 'log', message: 'Toggle failed: ' + response.error });
-            }
-        } catch (error) {
-            // Extension context may be invalidated - silently ignore
-        }
-    }
 })();
+
+// Handle keyboard shortcuts - registered at top level to ensure it works after service worker restarts
+chrome.commands.onCommand.addListener((command) => {
+    if (command === 'lock-page') {
+        lockCurrentPage();
+    }
+});
+
+// Function to lock the current active page
+async function lockCurrentPage() {
+    try {
+        // Get current active tab
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        if (!tab?.url?.includes('notion')) {
+            return;
+        }
+
+        // Send block request to content script
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'blockPage' });
+
+        if (response.success) {
+            chrome.tabs.sendMessage(tab.id, { action: 'log', message: 'Page lock toggled successfully' });
+        } else {
+            chrome.tabs.sendMessage(tab.id, { action: 'log', message: 'Toggle failed: ' + response.error });
+        }
+    } catch (error) {
+        // Extension context may be invalidated - silently ignore
+    }
+}
 
 

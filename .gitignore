@@ -89,3 +89,4 @@ settings.local.json
 _metadata
 EXTENSION_ID
 test.json
+calculate-extension-id.sh
