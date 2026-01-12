@@ -22,7 +22,7 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY_2022_02_07 }}
           owner: lumibit
-          repositories: latex-ci
+          repositories: chrome-extension-notion
 
       - id: checkout
         name: Checkout Repository

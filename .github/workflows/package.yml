@@ -46,12 +46,6 @@ jobs:
         env:
           NEW_VERSION: ${{ inputs.newVersion }}
 
-      - id: install-crx
-        name: Install crx tool
-        run: |
-          # install latest crx tool (v5.0.0+ supports Node.js v20)
-          npm install -g crx@latest
-
       - id: package-extension
         name: Package Chrome extension
         run: |
@@ -61,6 +55,10 @@ jobs:
 
           # zip the crx file for upload
           zip extension.crx.zip extension.crx
+          
+          # Copy docs/updates.xml to root for artifact upload
+          # (publish workflow downloads artifacts to docs/ directory)
+          cp docs/updates.xml updates.xml
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 

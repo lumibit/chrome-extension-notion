@@ -2,6 +2,6 @@
 <!-- this file goes to the webserver and is referenced in the Chrome enterprise profile -->
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='lkikjlmnnfopjolfoffebflimikmjkdl'>
-    <updatecheck codebase='https://lumibit.github.io/chrome-extension-notion/extension.crx' version='1.1.1' />
+    <updatecheck codebase='https://lumibit.github.io/chrome-extension-notion/extension.crx' version='1.0.0' />
   </app>
 </gupdate>
