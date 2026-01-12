@@ -54,11 +54,15 @@ done
 [ -z "$CHROME_CMD" ] && { echo "Error: Chrome/Chromium not found"; exit 1; }
 
 # Package extension with Chrome
+# Chrome requires absolute paths for --pack-extension and --pack-extension-key
+PACKAGE_DIR_ABS=$(cd "$PACKAGE_DIR" && pwd)
+KEY_FILE_ABS=$(cd "$(dirname temp_private_key.pem)" && pwd)/$(basename temp_private_key.pem)
+
 # On macOS, avoid --no-sandbox; on Linux/CI it's needed for headless
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    "$CHROME_CMD" --pack-extension="$PACKAGE_DIR" --pack-extension-key="temp_private_key.pem" 2>/dev/null
+    "$CHROME_CMD" --pack-extension="$PACKAGE_DIR_ABS" --pack-extension-key="$KEY_FILE_ABS" 2>&1
 else
-    "$CHROME_CMD" --pack-extension="$PACKAGE_DIR" --pack-extension-key="temp_private_key.pem" --no-sandbox 2>/dev/null
+    "$CHROME_CMD" --pack-extension="$PACKAGE_DIR_ABS" --pack-extension-key="$KEY_FILE_ABS" --no-sandbox 2>&1
 fi
 
 # Move CRX file to expected location (Chrome creates it with directory name)
