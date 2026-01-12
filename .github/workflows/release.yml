@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: "DryRun: Run the build without release steps"
+        type: boolean
+        default: false
+      versionBump:
+        description: "Increment version"
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+        default: patch
+  push:
+    branches:
+      - main
+
+jobs:
+  version:
+    uses: ./.github/workflows/update-version.yml
+    with:
+      versionBump: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.versionBump || 'patch' }}
+      manifestJsonPath: manifest.json
+
+  package:
+    needs: [version]
+    uses: ./.github/workflows/package.yml
+    with:
+      newVersion: ${{ needs.version.outputs.new }}
+      # boolean must be evaluated from a string
+      # https://medium.com/@sohail.ra5/github-actions-passing-boolean-input-variables-to-reusable-workflow-call-42d39bf7342e
+      dryRun: ${{ github.event_name == 'workflow_dispatch' && fromJson(github.event.inputs.dryRun) || github.event_name != 'workflow_dispatch' && true }}
+    secrets:
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+  publish:
+    needs: [package, version]
+    uses: ./.github/workflows/publish.yml
+    with:
+      newVersion: ${{ needs.version.outputs.new }}
+      dryRun: ${{ github.event_name == 'workflow_dispatch' && fromJson(github.event.inputs.dryRun) || github.event_name != 'workflow_dispatch' && true }}

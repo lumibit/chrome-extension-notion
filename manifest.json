@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Notion",
+  "version": "1.0.0",
+  "description": "Lock notion pages with shortcuts",
+  "permissions": [
+    "storage",
+    "webRequest",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://*.notion.so/*",
+    "https://*.notion.site/*",
+    "https://api.notion.so/*"
+  ],
+  "update_url": "https://lumibit.github.io/chrome-extension-notion/updates.xml",
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.notion.so/*",
+        "https://*.notion.site/*"
+      ],
+      "js": [
+        "src/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup.html"
+  },
+  "commands": {
+    "lock-page": {
+      "suggested_key": {
+        "default": "Ctrl+B",
+        "mac": "Command+B"
+      },
+      "description": "Lock current Notion page"
+    }
+  },
+  "icons": {
+    "16": "extension-icon.png",
+    "48": "extension-icon.png",
+    "128": "extension-icon.png"
+  }
+}

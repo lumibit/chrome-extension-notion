@@ -1,0 +1,34 @@
+name: Update Version
+
+on:
+  workflow_call:
+    inputs:
+      versionBump:
+        required: true
+        type: string
+      manifestJsonPath:
+        required: false
+        type: string
+        default: "manifest.json"
+    outputs:
+      new:
+        description: "New version number"
+        value: ${{ jobs.update.outputs.new }}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      new: ${{ steps.update-version.outputs.new }}
+
+    steps:
+      - id: checkout
+        name: Checkout repository
+        uses: actions/checkout@v4
+
+      - id: update-version
+        name: Update version
+        run: |
+          chmod +x .github/workflows/update-version.sh
+          NEW_VERSION=$(bash .github/workflows/update-version.sh ${{ inputs.manifestJsonPath }} ${{ inputs.versionBump }})
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT

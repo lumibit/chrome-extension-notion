@@ -1,0 +1,76 @@
+name: Commit, Tag, and Github Release
+
+on:
+  workflow_call:
+    inputs:
+      newVersion:
+        required: true
+        type: string
+      dryRun:
+        required: true
+        type: boolean
+
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: generate-token
+        name: Generate GitHub App Token for repository write access
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY_2022_02_07 }}
+          owner: lumibit
+          repositories: latex-ci
+
+      - id: checkout
+        name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          ref: main
+
+      - id: download-artifacts
+        name: Download extension artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: extension-artifacts
+          path: docs/
+
+      - id: place-updated-files
+        name: Copy manifest.json and updates.xml
+        run: |
+          cp docs/manifest.json .
+          cp docs/updates.xml .
+
+      - id: commit-and-tag
+        name: Commit changed files, add the release .crx to Github Pages
+        if: ${{ inputs.dryRun == false }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "Version Update to ${{ inputs.newVersion }}"
+          author_name: lumibit[bot]
+          author_email: 98383366+lumibit[bot]@users.noreply.github.com
+          committer_name: lumibit[bot]
+          committer_email: 98383366+lumibit[bot]@users.noreply.github.com
+          add: |
+            manifest.json 
+            updates.xml
+            docs/extension.crx
+            docs/updates.xml
+          push: true
+          tag: ${{ inputs.newVersion }}
+          pathspec_error_handling: exitImmediately
+
+      - id: create-github-release
+        name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        if: ${{ inputs.dryRun == false }}
+        with:
+          artifacts: "docs/extension.crx.zip"
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          tag: ${{ inputs.newVersion }}
+          name: ${{ inputs.newVersion }}
+          generateReleaseNotes: true
