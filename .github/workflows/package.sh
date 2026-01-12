@@ -64,13 +64,32 @@ cd ..
 echo "Creating CRX package with private key..."
 if command -v crx &> /dev/null; then
     # Write private key from environment variable to temporary file
-    echo "$PRIVATE_KEY" > temp_private_key.pem
+    # GitHub secrets may store newlines as \n (escaped), so we need to convert them to actual newlines
+    # Use printf with %b to interpret escape sequences like \n
+    printf '%b\n' "$PRIVATE_KEY" > temp_private_key.pem
     
-    # Use crx tool (latest version supports Node.js v20+)
-    crx pack "$PACKAGE_DIR" -p "temp_private_key.pem" -o "$CRX_FILE"
+    # Convert private key to PKCS#8 format (required for Node.js v20 OpenSSL)
+    # Chrome extensions typically use PKCS#1 format, but Node.js v20 requires PKCS#8
+    echo "Converting private key to PKCS#8 format for Node.js v20 compatibility..."
+    if openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in temp_private_key.pem -out temp_private_key_pkcs8.pem 2>&1; then
+        if [ -f temp_private_key_pkcs8.pem ] && [ -s temp_private_key_pkcs8.pem ]; then
+            KEY_FILE="temp_private_key_pkcs8.pem"
+            echo "Key successfully converted to PKCS#8 format"
+        else
+            KEY_FILE="temp_private_key.pem"
+            echo "Conversion produced empty file, using original key"
+        fi
+    else
+        # If conversion fails, the key might already be in PKCS#8 format
+        KEY_FILE="temp_private_key.pem"
+        echo "Key conversion failed, using original key (may already be in compatible format)"
+    fi
     
-    # Clean up temporary key file
-    rm -f temp_private_key.pem
+    # Use crx tool with the converted key
+    crx pack "$PACKAGE_DIR" -p "$KEY_FILE" -o "$CRX_FILE"
+    
+    # Clean up temporary key files
+    rm -f temp_private_key.pem temp_private_key_pkcs8.pem
     
     # Verify CRX file was created
     if [ ! -f "$CRX_FILE" ]; then
